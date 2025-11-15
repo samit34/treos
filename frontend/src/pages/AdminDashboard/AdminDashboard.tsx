@@ -14,7 +14,7 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState<any>({});
   const [users, setUsers] = useState<User[]>([]);
   const [jobs, setJobs] = useState<AdminJob[]>([]);
-  const [payments, setPayments] = useState<Payment[]>([]);
+  const [_payments, setPayments] = useState<Payment[]>([]); // Reserved for future use
   const [loading, setLoading] = useState(true);
   const [completingJobId, setCompletingJobId] = useState<string | null>(null);
   const [jobCompletionMessage, setJobCompletionMessage] = useState('');

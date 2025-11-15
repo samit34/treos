@@ -60,7 +60,7 @@ const ClientSidebar = () => {
               {profilePictureSrc ? (
                 <img
                   src={profilePictureSrc}
-                  alt={user.firstName}
+                  alt={user?.firstName || 'User'}
                   className="w-10 h-10 rounded-full"
                 />
               ) : (

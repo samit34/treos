@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import axiosInstance from '../../api/axiosInstance';
-import { Job } from '../../types';
 
 interface CreateJobModalProps {
   onClose: () => void;

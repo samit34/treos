@@ -39,7 +39,7 @@ const WorkerProposalsPage = ({
   const [reviewModalData, setReviewModalData] = useState<{ proposal: Proposal } | null>(null);
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewError, setReviewError] = useState('');
-  const [reviewSuccess, setReviewSuccess] = useState('');
+  const [_reviewSuccess, setReviewSuccess] = useState(''); // Reserved for future use
 
   useEffect(() => {
     const loadProposals = async () => {
