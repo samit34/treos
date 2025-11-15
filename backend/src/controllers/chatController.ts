@@ -86,7 +86,8 @@ export const getMessages = async (req: AuthRequest, res: Response, next: NextFun
 
     // Verify user is part of conversation
     const conversation = await Conversation.findById(conversationId);
-    if (!ensureParticipant(conversation, req.user?._id)) {
+    const userId = req.user?._id ? String(req.user._id) : null;
+    if (!ensureParticipant(conversation, userId)) {
       res.status(403).json({ message: 'Not authorized to view this conversation' });
       return;
     }
@@ -99,14 +100,16 @@ export const getMessages = async (req: AuthRequest, res: Response, next: NextFun
       .sort({ createdAt: -1 });
 
     // Mark messages as read
-    await Message.updateMany(
-      {
-        conversation: conversationId,
-        receiver: req.user?._id,
-        isRead: false,
-      },
-      { isRead: true }
-    );
+    if (userId) {
+      await Message.updateMany(
+        {
+          conversation: conversationId,
+          receiver: userId,
+          isRead: false,
+        },
+        { isRead: true }
+      );
+    }
 
     res.json({
       success: true,
@@ -124,7 +127,7 @@ export const getMessages = async (req: AuthRequest, res: Response, next: NextFun
 export const createMessage = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { conversationId, receiverId, content } = req.body;
-    const senderId = req.user?._id;
+    const senderId = req.user?._id ? String(req.user._id) : null;
 
     if (!senderId || !receiverId || !content) {
       res.status(400).json({ message: 'Conversation, receiver, and content are required.' });
@@ -170,7 +173,7 @@ export const createMessage = async (req: AuthRequest, res: Response, next: NextF
     });
 
     // Update conversation last message
-    conversation.lastMessage = message._id;
+    conversation.lastMessage = message._id as mongoose.Types.ObjectId;
     conversation.lastMessageAt = new Date();
     await conversation.save();
 

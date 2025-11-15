@@ -1,6 +1,7 @@
 import { Server as HttpServer } from 'http';
 import { Server as SocketServer, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import { jwtConfig } from '../config/jwt';
 import User from '../models/User';
 import Message from '../models/Message';
@@ -132,7 +133,7 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
 
         // Update conversation
         if (conversation) {
-          conversation.lastMessage = message._id;
+          conversation.lastMessage = message._id as mongoose.Types.ObjectId;
           conversation.lastMessageAt = new Date();
           await conversation.save();
         }

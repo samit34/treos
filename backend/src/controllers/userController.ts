@@ -140,6 +140,11 @@ export const changePassword = async (req: AuthRequest, res: Response, next: Next
       return;
     }
 
+    if (!user.password) {
+      res.status(400).json({ message: 'This account does not have a password. Please use Google sign-in or set a password first.' });
+      return;
+    }
+
     const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
     if (!isPasswordValid) {
       res.status(400).json({ message: 'Current password is incorrect' });
