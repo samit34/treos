@@ -7,7 +7,8 @@ export const initializeSocket = (token: string): Socket => {
     return socket;
   }
 
-  socket = io('http://localhost:5000', {
+  socket = io(window.location.origin, {
+    path: '/socket.io',
     auth: {
       token,
     },
