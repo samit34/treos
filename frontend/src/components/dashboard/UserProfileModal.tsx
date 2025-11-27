@@ -6,7 +6,7 @@ interface UserProfileModalProps {
 }
 
 const UserProfileModal = ({ user, onClose }: UserProfileModalProps) => {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://dashboard.tros.com.au';
 
   const profilePictureSrc = user.profilePicture
     ? user.profilePicture.startsWith('http')

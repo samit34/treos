@@ -1,14 +1,12 @@
-import { Link, useLocation } from 'react-router-dom';
-import { useAppSelector, useAppDispatch } from '../../hooks/redux';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { logout } from '../../features/auth/authSlice';
-import { useNavigate } from 'react-router-dom';
 
-const ClientSidebar = () => {
+const AdminSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  const { unreadTotal } = useAppSelector((state) => state.chat);
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://dashboard.tros.com.au';
 
   const profilePictureSrc = user?.profilePicture
@@ -23,34 +21,23 @@ const ClientSidebar = () => {
   };
 
   const menuItems = [
-    { path: '/clientdashboard', label: 'Overview', icon: '📊' },
-    { path: '/clientdashboard/jobs', label: 'Jobs', icon: '🗂️' },
-    { path: '/clientdashboard/jobs/post', label: 'Post Job', icon: '📝' },
-    { path: '/clientdashboard/workers', label: 'Workers', icon: '🧑‍⚕️' },
-    { path: '/clientdashboard/calendar', label: 'Calendar', icon: '📅' },
-    { path: '/clientdashboard/account', label: 'Profile', icon: '👤' },
-    { path: '/clientdashboard/settings', label: 'Settings', icon: '⚙️' },
-    { path: '/clientdashboard/reviews', label: 'Reviews', icon: '⭐' },
-    {
-      path: '/clientdashboard/chat',
-      label: 'Messages',
-      icon: '💬',
-      badge: unreadTotal,
-    },
+    { path: '/admindashboard/overview', label: 'Overview', icon: '📊' },
+    { path: '/admindashboard/users', label: 'Users', icon: '👥' },
+    { path: '/admindashboard/jobs', label: 'Jobs', icon: '💼' },
+    { path: '/admindashboard/categories', label: 'Categories', icon: '📁' },
+    { path: '/admindashboard/payments', label: 'Payments', icon: '💰' },
+    { path: '/admindashboard/messages', label: 'Messages', icon: '💬' },
   ];
 
   const isActive = (path: string) => {
-    if (path === '/clientdashboard') {
-      return location.pathname === path;
-    }
-    return location.pathname.startsWith(path);
+    return location.pathname === path;
   };
 
   return (
     <div className="w-64 bg-white shadow-lg h-screen flex flex-col sticky top-0">
       <div className="p-6 border-b flex-shrink-0">
         <h1 className="text-xl font-bold text-primary-600">Care Service</h1>
-        <p className="text-sm text-gray-500 mt-1">Client Portal</p>
+        <p className="text-sm text-gray-500 mt-1">Admin Portal</p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
@@ -60,7 +47,7 @@ const ClientSidebar = () => {
               {profilePictureSrc ? (
                 <img
                   src={profilePictureSrc}
-                  alt={user?.firstName || 'User'}
+                  alt={user?.firstName || 'Admin'}
                   className="w-10 h-10 rounded-full"
                 />
               ) : (
@@ -83,7 +70,7 @@ const ClientSidebar = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-left ${
                 isActive(item.path)
                   ? 'bg-primary-100 text-primary-700 font-medium'
                   : 'text-gray-700 hover:bg-gray-100'
@@ -91,11 +78,6 @@ const ClientSidebar = () => {
             >
               <span className="text-xl">{item.icon}</span>
               <span>{item.label}</span>
-              {item.badge ? (
-                <span className="ml-auto inline-flex min-w-[1.5rem] justify-center rounded-full bg-primary-600 px-2 py-0.5 text-xs font-semibold text-white">
-                  {item.badge > 99 ? '99+' : item.badge}
-                </span>
-              ) : null}
             </Link>
           ))}
         </nav>
@@ -114,5 +96,5 @@ const ClientSidebar = () => {
   );
 };
 
-export default ClientSidebar;
+export default AdminSidebar;
 

@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "proxy": "http://localhost:5000",
+  "proxy": "http://dashboard.tros.com.au",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
