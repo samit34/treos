@@ -31,7 +31,7 @@ const removeOnlineUser = (userId: string) => {
 export const initializeSocket = (httpServer: HttpServer): SocketServer => {
   const io = new SocketServer(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+      origin: process.env.FRONTEND_URL || 'http://dashboard.tros.com.au',
       credentials: true,
     },
   });

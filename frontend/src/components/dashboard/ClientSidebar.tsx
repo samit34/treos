@@ -9,7 +9,7 @@ const ClientSidebar = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const { unreadTotal } = useAppSelector((state) => state.chat);
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://dashboard.tros.com.au';
 
   const profilePictureSrc = user?.profilePicture
     ? user.profilePicture.startsWith('http')

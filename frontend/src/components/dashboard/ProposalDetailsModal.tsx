@@ -13,7 +13,7 @@ const ProposalDetailsModal = ({ proposal, onClose, onViewClientProfile }: Propos
   const client = job?.client;
   const location = job?.location;
   const schedule = job?.schedule;
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://dashboard.tros.com.au';
   const clientProfilePictureSrc = client?.profilePicture
     ? client.profilePicture.startsWith('http')
       ? client.profilePicture

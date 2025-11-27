@@ -33,7 +33,7 @@ const ClientSettingsPage = () => {
   const [serviceCategories, setServiceCategories] = useState<Array<{ _id: string; name: string; description?: string }>>([]);
 
   const apiBaseUrl = useMemo(
-    () => import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000',
+    () => import.meta.env.VITE_API_BASE_URL ?? 'http://dashboard.tros.com.au',
     []
   );
 
