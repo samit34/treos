@@ -5,19 +5,12 @@ import * as Yup from 'yup';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { setUser } from '../../features/auth/authSlice';
 import { userApi } from '../../api/userApi';
+import { getActiveCategories } from '../../api/adminApi';
 
 interface MessageState {
   type: 'success' | 'error';
   text: string;
 }
-
-const supportOptions = [
-  'Personal Care',
-  'Companionship',
-  'Medical Assistance',
-  'Housekeeping',
-  'Transportation',
-];
 
 const ClientSettingsPage = () => {
   const dispatch = useAppDispatch();
@@ -37,11 +30,25 @@ const ClientSettingsPage = () => {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [requestingOtp, setRequestingOtp] = useState(false);
   const [otpRequested, setOtpRequested] = useState(false);
+  const [serviceCategories, setServiceCategories] = useState<Array<{ _id: string; name: string; description?: string }>>([]);
 
   const apiBaseUrl = useMemo(
     () => import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000',
     []
   );
+
+  // Fetch active service categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getActiveCategories();
+        setServiceCategories(categories);
+      } catch (error) {
+        console.error('Failed to fetch service categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const currentProfilePicture = useMemo(() => {
     if (!user?.profilePicture) return null;
@@ -397,32 +404,44 @@ const ClientSettingsPage = () => {
 
           <div>
             <h3 className="text-sm font-medium text-gray-700">Support Needs</h3>
-            <div className="mt-2 grid gap-2 md:grid-cols-2">
-              {supportOptions.map((option) => {
-                const checked = profileFormik.values.supportNeeds.includes(option);
-                return (
-                  <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
-                    <input
-                      type="checkbox"
-                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                      checked={checked}
-                      onChange={(event) => {
-                        const current = profileFormik.values.supportNeeds;
-                        if (event.target.checked) {
-                          profileFormik.setFieldValue('supportNeeds', [...current, option]);
-                        } else {
-                          profileFormik.setFieldValue(
-                            'supportNeeds',
-                            current.filter((item) => item !== option)
-                          );
-                        }
-                      }}
-                    />
-                    <span>{option}</span>
-                  </label>
-                );
-              })}
-            </div>
+            <p className="text-xs text-gray-500 mb-3">
+              Select the service categories you need
+            </p>
+            {serviceCategories.length === 0 ? (
+              <p className="text-sm text-gray-500">No service categories available. Please contact admin.</p>
+            ) : (
+              <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-md p-3">
+                {serviceCategories.map((category) => {
+                  const checked = profileFormik.values.supportNeeds.includes(category.name);
+                  return (
+                    <label key={category._id} className="flex items-start">
+                      <input
+                        type="checkbox"
+                        className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        checked={checked}
+                        onChange={(event) => {
+                          const current = profileFormik.values.supportNeeds;
+                          if (event.target.checked) {
+                            profileFormik.setFieldValue('supportNeeds', [...current, category.name]);
+                          } else {
+                            profileFormik.setFieldValue(
+                              'supportNeeds',
+                              current.filter((item) => item !== category.name)
+                            );
+                          }
+                        }}
+                      />
+                      <div className="ml-2">
+                        <span className="text-sm font-medium text-gray-900">{category.name}</span>
+                        {category.description && (
+                          <p className="text-xs text-gray-500">{category.description}</p>
+                        )}
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {renderMessage(profileMessage)}

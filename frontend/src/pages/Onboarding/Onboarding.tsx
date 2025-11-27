@@ -5,6 +5,7 @@ import * as Yup from 'yup';
 import { useAppSelector, useAppDispatch } from '../../hooks/redux';
 import { setUser } from '../../features/auth/authSlice';
 import axiosInstance from '../../api/axiosInstance';
+import { getActiveCategories } from '../../api/adminApi';
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Onboarding = () => {
   const { user } = useAppSelector((state) => state.auth);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [serviceCategories, setServiceCategories] = useState<Array<{ _id: string; name: string; description?: string }>>([]);
   // Only pre-select role if user has completed onboarding (meaning role was explicitly set)
   // Otherwise, show role selection first
   const [selectedRole, setSelectedRole] = useState<'client' | 'worker' | null>(
@@ -19,6 +21,19 @@ const Onboarding = () => {
       ? (user.role as 'client' | 'worker')
       : null
   );
+
+  // Fetch active service categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getActiveCategories();
+        setServiceCategories(categories);
+      } catch (error) {
+        console.error('Failed to fetch service categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // Redirect if onboarding is already completed
   useEffect(() => {
@@ -109,7 +124,6 @@ const Onboarding = () => {
   });
 
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  const careTypes = ['Personal Care', 'Companionship', 'Medical Assistance', 'Housekeeping', 'Transportation'];
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -245,30 +259,40 @@ const Onboarding = () => {
           {isWorker && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Qualifications</label>
-                <div className="space-y-2">
-                  {careTypes.map((type) => (
-                    <label key={type} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                        checked={formik.values.qualifications?.includes(type)}
-                        onChange={(e) => {
-                          const quals = formik.values.qualifications || [];
-                          if (e.target.checked) {
-                            formik.setFieldValue('qualifications', [...quals, type]);
-                          } else {
-                            formik.setFieldValue(
-                              'qualifications',
-                              quals.filter((q) => q !== type)
-                            );
-                          }
-                        }}
-                      />
-                      <span className="ml-2">{type}</span>
-                    </label>
-                  ))}
-                </div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Service Categories</label>
+                <p className="text-xs text-gray-500 mb-3">Select the service categories you provide</p>
+                {serviceCategories.length === 0 ? (
+                  <p className="text-sm text-gray-500">No service categories available. Please contact admin.</p>
+                ) : (
+                  <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-200 rounded-md p-3">
+                    {serviceCategories.map((category) => (
+                      <label key={category._id} className="flex items-start">
+                        <input
+                          type="checkbox"
+                          className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                          checked={formik.values.qualifications?.includes(category.name)}
+                          onChange={(e) => {
+                            const quals = formik.values.qualifications || [];
+                            if (e.target.checked) {
+                              formik.setFieldValue('qualifications', [...quals, category.name]);
+                            } else {
+                              formik.setFieldValue(
+                                'qualifications',
+                                quals.filter((q) => q !== category.name)
+                              );
+                            }
+                          }}
+                        />
+                        <div className="ml-2">
+                          <span className="text-sm font-medium text-gray-900">{category.name}</span>
+                          {category.description && (
+                            <p className="text-xs text-gray-500">{category.description}</p>
+                          )}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -348,26 +372,36 @@ const Onboarding = () => {
           {!isWorker && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Support Needs</label>
-              <div className="space-y-2">
-                {careTypes.map((type) => (
-                  <label key={type} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                      checked={formik.values.supportNeeds?.includes(type)}
-                      onChange={(e) => {
-                        const needs = formik.values.supportNeeds || [];
-                        if (e.target.checked) {
-                          formik.setFieldValue('supportNeeds', [...needs, type]);
-                        } else {
-                          formik.setFieldValue('supportNeeds', needs.filter((n) => n !== type));
-                        }
-                      }}
-                    />
-                    <span className="ml-2">{type}</span>
-                  </label>
-                ))}
-              </div>
+              <p className="text-xs text-gray-500 mb-3">Select the service categories you need</p>
+              {serviceCategories.length === 0 ? (
+                <p className="text-sm text-gray-500">No service categories available. Please contact admin.</p>
+              ) : (
+                <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-200 rounded-md p-3">
+                  {serviceCategories.map((category) => (
+                    <label key={category._id} className="flex items-start">
+                      <input
+                        type="checkbox"
+                        className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        checked={formik.values.supportNeeds?.includes(category.name)}
+                        onChange={(e) => {
+                          const needs = formik.values.supportNeeds || [];
+                          if (e.target.checked) {
+                            formik.setFieldValue('supportNeeds', [...needs, category.name]);
+                          } else {
+                            formik.setFieldValue('supportNeeds', needs.filter((n) => n !== category.name));
+                          }
+                        }}
+                      />
+                      <div className="ml-2">
+                        <span className="text-sm font-medium text-gray-900">{category.name}</span>
+                        {category.description && (
+                          <p className="text-xs text-gray-500">{category.description}</p>
+                        )}
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

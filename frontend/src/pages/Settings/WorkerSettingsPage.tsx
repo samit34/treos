@@ -5,6 +5,7 @@ import * as Yup from 'yup';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { setUser } from '../../features/auth/authSlice';
 import { userApi } from '../../api/userApi';
+import { getActiveCategories } from '../../api/adminApi';
 
 interface MessageState {
   type: 'success' | 'error';
@@ -31,11 +32,25 @@ const WorkerSettingsPage = () => {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [requestingOtp, setRequestingOtp] = useState(false);
   const [otpRequested, setOtpRequested] = useState(false);
+  const [serviceCategories, setServiceCategories] = useState<Array<{ _id: string; name: string; description?: string }>>([]);
 
   const apiBaseUrl = useMemo(
     () => import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000',
     []
   );
+
+  // Fetch active service categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getActiveCategories();
+        setServiceCategories(categories);
+      } catch (error) {
+        console.error('Failed to fetch service categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const currentProfilePicture = useMemo(() => {
     if (!user?.profilePicture) return null;
@@ -65,7 +80,7 @@ const WorkerSettingsPage = () => {
         zipCode: user?.address?.zipCode || '',
         country: user?.address?.country || '',
       },
-      qualificationsText: (user?.qualifications || []).join('\n'),
+      serviceCategories: user?.qualifications || [],
       availabilityDays: user?.availability?.days || [],
       availabilityStart: user?.availability?.hours?.start || '',
       availabilityEnd: user?.availability?.hours?.end || '',
@@ -95,18 +110,13 @@ const WorkerSettingsPage = () => {
       try {
         setProfileMessage(null);
 
-        const qualifications = values.qualificationsText
-          .split('\n')
-          .map((line) => line.trim())
-          .filter(Boolean);
-
         const payload: Record<string, unknown> = {
           firstName: values.firstName,
           lastName: values.lastName,
           phone: values.phone,
           dateOfBirth: values.dateOfBirth || null,
           address: values.address,
-          qualifications,
+          qualifications: values.serviceCategories,
           availability: {
             days: values.availabilityDays,
             hours: {
@@ -415,17 +425,42 @@ const WorkerSettingsPage = () => {
           </div>
 
           <div>
-            <h3 className="text-sm font-medium text-gray-700">Qualifications</h3>
-            <p className="text-xs text-gray-500">
-              Enter one qualification or certification per line.
+            <h3 className="text-sm font-medium text-gray-700">Service Categories</h3>
+            <p className="text-xs text-gray-500 mb-3">
+              Select the service categories you provide
             </p>
-            <textarea
-              name="qualificationsText"
-              rows={4}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-primary-500"
-              value={profileFormik.values.qualificationsText}
-              onChange={profileFormik.handleChange}
-            />
+            {serviceCategories.length === 0 ? (
+              <p className="text-sm text-gray-500">No service categories available. Please contact admin.</p>
+            ) : (
+              <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-200 rounded-md p-3">
+                {serviceCategories.map((category) => (
+                  <label key={category._id} className="flex items-start">
+                    <input
+                      type="checkbox"
+                      className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      checked={profileFormik.values.serviceCategories.includes(category.name)}
+                      onChange={(e) => {
+                        const current = profileFormik.values.serviceCategories;
+                        if (e.target.checked) {
+                          profileFormik.setFieldValue('serviceCategories', [...current, category.name]);
+                        } else {
+                          profileFormik.setFieldValue(
+                            'serviceCategories',
+                            current.filter((cat) => cat !== category.name)
+                          );
+                        }
+                      }}
+                    />
+                    <div className="ml-2">
+                      <span className="text-sm font-medium text-gray-900">{category.name}</span>
+                      {category.description && (
+                        <p className="text-xs text-gray-500">{category.description}</p>
+                      )}
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>

@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { logout } from '../../features/auth/authSlice';
 
-const WorkerSidebar = () => {
+const AdminSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -21,29 +21,23 @@ const WorkerSidebar = () => {
   };
 
   const menuItems = [
-    { path: '/workerdashboard', label: 'Overview', icon: '📊' },
-    { path: '/workerdashboard/jobs', label: 'Find Jobs', icon: '🗂️' },
-    { path: '/workerdashboard/proposals', label: 'My Proposals', icon: '📝' },
-    { path: '/workerdashboard/proposals/pending', label: 'Pending Proposals', icon: '⏳' },
-    { path: '/workerdashboard/calendar', label: 'Calendar', icon: '📅' },
-    { path: '/workerdashboard/account', label: 'Profile', icon: '👤' },
-    { path: '/workerdashboard/settings', label: 'Settings', icon: '⚙️' },
-    { path: '/workerdashboard/reviews', label: 'Reviews', icon: '⭐' },
-    { path: '/workerdashboard/chat', label: 'Messages', icon: '💬' },
+    { path: '/admindashboard/overview', label: 'Overview', icon: '📊' },
+    { path: '/admindashboard/users', label: 'Users', icon: '👥' },
+    { path: '/admindashboard/jobs', label: 'Jobs', icon: '💼' },
+    { path: '/admindashboard/categories', label: 'Categories', icon: '📁' },
+    { path: '/admindashboard/payments', label: 'Payments', icon: '💰' },
+    { path: '/admindashboard/messages', label: 'Messages', icon: '💬' },
   ];
 
   const isActive = (path: string) => {
-    if (path === '/workerdashboard') {
-      return location.pathname === path;
-    }
-    return location.pathname.startsWith(path);
+    return location.pathname === path;
   };
 
   return (
     <div className="w-64 bg-white shadow-lg h-screen flex flex-col sticky top-0">
       <div className="p-6 border-b flex-shrink-0">
         <h1 className="text-xl font-bold text-primary-600">Care Service</h1>
-        <p className="text-sm text-gray-500 mt-1">Worker Portal</p>
+        <p className="text-sm text-gray-500 mt-1">Admin Portal</p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
@@ -51,11 +45,14 @@ const WorkerSidebar = () => {
           <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
             <div className="w-10 h-10 bg-primary-200 rounded-full flex items-center justify-center">
               {profilePictureSrc ? (
-                <img src={profilePictureSrc} alt={user?.firstName} className="w-10 h-10 rounded-full" />
+                <img
+                  src={profilePictureSrc}
+                  alt={user?.firstName || 'Admin'}
+                  className="w-10 h-10 rounded-full"
+                />
               ) : (
                 <span className="text-primary-600 font-semibold">
-                  {user?.firstName?.[0]}
-                  {user?.lastName?.[0]}
+                  {user?.firstName?.[0]}{user?.lastName?.[0]}
                 </span>
               )}
             </div>
@@ -73,7 +70,7 @@ const WorkerSidebar = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors text-left ${
                 isActive(item.path)
                   ? 'bg-primary-100 text-primary-700 font-medium'
                   : 'text-gray-700 hover:bg-gray-100'
@@ -99,6 +96,5 @@ const WorkerSidebar = () => {
   );
 };
 
-export default WorkerSidebar;
-
+export default AdminSidebar;
 

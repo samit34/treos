@@ -23,16 +23,16 @@ const ClientSidebar = () => {
   };
 
   const menuItems = [
-    { path: '/dashboard', label: 'Overview', icon: '📊' },
-    { path: '/dashboard/jobs', label: 'Jobs', icon: '🗂️' },
-    { path: '/dashboard/jobs/post', label: 'Post Job', icon: '📝' },
-    { path: '/dashboard/workers', label: 'Workers', icon: '🧑‍⚕️' },
-    { path: '/dashboard/calendar', label: 'Calendar', icon: '📅' },
-    { path: '/dashboard/account', label: 'Profile', icon: '👤' },
-    { path: '/dashboard/settings', label: 'Settings', icon: '⚙️' },
-    { path: '/dashboard/reviews', label: 'Reviews', icon: '⭐' },
+    { path: '/clientdashboard', label: 'Overview', icon: '📊' },
+    { path: '/clientdashboard/jobs', label: 'Jobs', icon: '🗂️' },
+    { path: '/clientdashboard/jobs/post', label: 'Post Job', icon: '📝' },
+    { path: '/clientdashboard/workers', label: 'Workers', icon: '🧑‍⚕️' },
+    { path: '/clientdashboard/calendar', label: 'Calendar', icon: '📅' },
+    { path: '/clientdashboard/account', label: 'Profile', icon: '👤' },
+    { path: '/clientdashboard/settings', label: 'Settings', icon: '⚙️' },
+    { path: '/clientdashboard/reviews', label: 'Reviews', icon: '⭐' },
     {
-      path: '/dashboard/chat',
+      path: '/clientdashboard/chat',
       label: 'Messages',
       icon: '💬',
       badge: unreadTotal,
@@ -40,7 +40,7 @@ const ClientSidebar = () => {
   ];
 
   const isActive = (path: string) => {
-    if (path === '/dashboard') {
+    if (path === '/clientdashboard') {
       return location.pathname === path;
     }
     return location.pathname.startsWith(path);

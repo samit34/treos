@@ -11,6 +11,7 @@ import chatRoutes from './routes/chatRoutes';
 import adminRoutes from './routes/adminRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import reviewRoutes from './routes/reviewRoutes';
+import { getActiveCategories } from './controllers/categoryController';
 import path from 'path';
 
 dotenv.config();
@@ -38,6 +39,9 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/reviews', reviewRoutes);
+
+// Public routes
+app.get('/api/categories/active', getActiveCategories);
 
 // Health check
 app.get('/api/health', (req, res) => {

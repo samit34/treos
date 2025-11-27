@@ -4,6 +4,7 @@ import Job from '../models/Job';
 import Proposal from '../models/Proposal';
 import Payment from '../models/Payment';
 import { AuthRequest } from '../middlewares/authMiddleware';
+import { sendEmail } from '../utils/sendEmail';
 
 export const getDashboardStats = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -47,7 +48,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response, next: N
 export const manageUser = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { userId } = req.params;
-    const { action, ...updates } = req.body;
+    const { action, isBlocked, blockReason, ...updates } = req.body;
 
     if (action === 'delete') {
       await User.findByIdAndDelete(userId);
@@ -56,15 +57,52 @@ export const manageUser = async (req: AuthRequest, res: Response, next: NextFunc
         message: 'User deleted successfully',
       });
     } else {
-      const user = await User.findByIdAndUpdate(userId, updates, {
-        new: true,
-        runValidators: true,
-      }).select('-password');
+      const user = await User.findById(userId);
+      if (!user) {
+        res.status(404).json({ message: 'User not found' });
+        return;
+      }
+
+      const wasBlocked = user.isBlocked;
+      const willBeBlocked = isBlocked !== undefined ? isBlocked : user.isBlocked;
+
+      // Update user
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { ...updates, isBlocked: willBeBlocked },
+        { new: true, runValidators: true }
+      ).select('-password');
+
+      // Send email notification if block status changed
+      if (wasBlocked !== willBeBlocked) {
+        const emailSubject = willBeBlocked ? 'Account Blocked' : 'Account Unblocked';
+        const emailHtml = willBeBlocked
+          ? `
+            <h2>Account Blocked</h2>
+            <p>Hello ${user.firstName},</p>
+            <p>Your account has been blocked by an administrator.</p>
+            ${blockReason ? `<p><strong>Reason:</strong> ${blockReason}</p>` : ''}
+            <p>If you believe this is an error, please contact support.</p>
+          `
+          : `
+            <h2>Account Unblocked</h2>
+            <p>Hello ${user.firstName},</p>
+            <p>Your account has been unblocked and you can now access the platform again.</p>
+            <p>Thank you for your patience.</p>
+          `;
+
+        try {
+          await sendEmail(user.email, emailSubject, emailHtml);
+        } catch (emailError) {
+          console.error('Failed to send block/unblock email:', emailError);
+          // Don't fail the request if email fails
+        }
+      }
 
       res.json({
         success: true,
         message: 'User updated successfully',
-        data: { user },
+        data: { user: updatedUser },
       });
     }
   } catch (error) {
@@ -127,6 +165,34 @@ export const getAllPayments = async (req: AuthRequest, res: Response, next: Next
         currentPage: Number(page),
         total,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteJob = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { jobId } = req.params;
+    
+    const job = await Job.findById(jobId);
+    if (!job) {
+      res.status(404).json({ message: 'Job not found' });
+      return;
+    }
+
+    // Delete associated proposals
+    await Proposal.deleteMany({ job: jobId });
+    
+    // Delete associated payments
+    await Payment.deleteMany({ job: jobId });
+    
+    // Delete the job
+    await Job.findByIdAndDelete(jobId);
+
+    res.json({
+      success: true,
+      message: 'Job deleted successfully',
     });
   } catch (error) {
     next(error);

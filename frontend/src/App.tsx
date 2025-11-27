@@ -48,11 +48,45 @@ function App() {
       <Routes>
       <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />}
+        element={
+          isAuthenticated ? (
+            <Navigate
+              to={
+                user?.role === 'client'
+                  ? '/clientdashboard'
+                  : user?.role === 'worker'
+                  ? '/workerdashboard'
+                  : user?.role === 'admin'
+                  ? '/admindashboard'
+                  : '/login'
+              }
+              replace
+            />
+          ) : (
+            <Login />
+          )
+        }
       />
       <Route
         path="/signup"
-        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Signup />}
+        element={
+          isAuthenticated ? (
+            <Navigate
+              to={
+                user?.role === 'client'
+                  ? '/clientdashboard'
+                  : user?.role === 'worker'
+                  ? '/workerdashboard'
+                  : user?.role === 'admin'
+                  ? '/admindashboard'
+                  : '/login'
+              }
+              replace
+            />
+          ) : (
+            <Signup />
+          )
+        }
       />
       <Route
         path="/onboarding"
@@ -61,11 +95,25 @@ function App() {
             {user === null
               ? loadingScreen
               : user.onboardingCompleted
-              ? <Navigate to="/dashboard" replace />
+              ? (
+                  <Navigate
+                    to={
+                      user.role === 'client'
+                        ? '/clientdashboard'
+                        : user.role === 'worker'
+                        ? '/workerdashboard'
+                        : user.role === 'admin'
+                        ? '/admindashboard'
+                        : '/login'
+                    }
+                    replace
+                  />
+                )
               : <Onboarding />}
           </ProtectedRoute>
         }
       />
+      {/* Legacy /dashboard route - redirect to appropriate dashboard */}
       <Route
         path="/dashboard"
         element={
@@ -75,49 +123,58 @@ function App() {
             ) : !user.onboardingCompleted ? (
               <Navigate to="/onboarding" replace />
             ) : user.role === 'client' ? (
-              <ClientDashboard />
+              <Navigate to="/clientdashboard" replace />
             ) : user.role === 'worker' ? (
-              <WorkerDashboard />
+              <Navigate to="/workerdashboard" replace />
             ) : user.role === 'admin' ? (
-              <AdminDashboard />
+              <Navigate to="/admindashboard" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )}
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Client Dashboard Routes */}
+      <Route
+        path="/clientdashboard"
+        element={
+          <ProtectedRoute>
+            {user === null ? (
+              loadingScreen
+            ) : !user.onboardingCompleted ? (
+              <Navigate to="/onboarding" replace />
+            ) : user.role === 'client' ? (
+              <ClientDashboard />
             ) : (
               <Navigate to="/login" replace />
             )}
           </ProtectedRoute>
         }
       >
-        <Route
-          index
-          element={
-            user?.role === 'worker' ? <WorkerOverviewPage /> : <DashboardHome />
-          }
-        />
+        <Route index element={<DashboardHome />} />
         <Route
           path="jobs"
-          element={user?.role === 'worker' ? <WorkerJobsPage /> : <JobsPage />}
+          element={
+            user?.role === 'client' ? <JobsPage /> : <Navigate to="/clientdashboard" replace />
+          }
         />
         <Route
           path="jobs/post"
           element={
-            user?.role === 'client' ? <ClientPostJobPage /> : <Navigate to="/dashboard" replace />
+            user?.role === 'client' ? <ClientPostJobPage /> : <Navigate to="/clientdashboard" replace />
           }
         />
         <Route
           path="workers"
           element={
-            user?.role === 'client' ? <WorkerDirectoryPage /> : <Navigate to="/dashboard" replace />
+            user?.role === 'client' ? <WorkerDirectoryPage /> : <Navigate to="/clientdashboard" replace />
           }
         />
         <Route
           path="workers/:workerId"
           element={
-            user?.role === 'client' ? <WorkerProfilePage /> : <Navigate to="/dashboard" replace />
-          }
-        />
-        <Route
-          path="clients/:clientId"
-          element={
-            user?.role === 'worker' ? <ClientProfilePage /> : <Navigate to="/dashboard" replace />
+            user?.role === 'client' ? <WorkerProfilePage /> : <Navigate to="/clientdashboard" replace />
           }
         />
         <Route
@@ -125,10 +182,8 @@ function App() {
           element={
             user?.role === 'client' ? (
               <ClientSettingsPage />
-            ) : user?.role === 'worker' ? (
-              <WorkerSettingsPage />
             ) : (
-              <Navigate to="/dashboard" replace />
+              <Navigate to="/clientdashboard" replace />
             )
           }
         />
@@ -137,37 +192,27 @@ function App() {
           element={
             user?.role === 'client' ? (
               <ClientReviewsPage />
-            ) : user?.role === 'worker' ? (
-              <WorkerReviewsPage />
             ) : (
-              <Navigate to="/dashboard" replace />
+              <Navigate to="/clientdashboard" replace />
             )
           }
         />
         <Route
           path="calendar"
           element={
-            user?.role === 'worker' ? <WorkerCalendarPage /> : <CalendarPage />
+            user?.role === 'client' ? <CalendarPage /> : <Navigate to="/clientdashboard" replace />
           }
         />
         <Route
           path="account"
-          element={user?.role === 'worker' ? <WorkerAccountPage /> : <AccountPage />}
+          element={
+            user?.role === 'client' ? <AccountPage /> : <Navigate to="/clientdashboard" replace />
+          }
         />
         <Route
           path="chat"
           element={
-            user?.role === 'client' || user?.role === 'worker' ? (
-              <ChatPage />
-            ) : (
-              <Navigate to="/dashboard" replace />
-            )
-          }
-        />
-        <Route
-          path="proposals"
-          element={
-            user?.role === 'worker' ? <WorkerProposalsPage /> : <Navigate to="/dashboard" replace />
+            user?.role === 'client' ? <ChatPage /> : <Navigate to="/clientdashboard" replace />
           }
         />
         <Route
@@ -176,20 +221,155 @@ function App() {
             user?.role === 'worker' ? (
               <WorkerPendingProposalsPage />
             ) : (
-              <Navigate to="/dashboard" replace />
+              <Navigate to="/workerdashboard" replace />
             )
           }
         />
       </Route>
+
+      {/* Worker Dashboard Routes */}
+      <Route
+        path="/workerdashboard"
+        element={
+          <ProtectedRoute>
+            {user === null ? (
+              loadingScreen
+            ) : !user.onboardingCompleted ? (
+              <Navigate to="/onboarding" replace />
+            ) : user.role === 'worker' ? (
+              <WorkerDashboard />
+            ) : (
+              <Navigate to="/login" replace />
+            )}
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<WorkerOverviewPage />} />
+        <Route
+          path="jobs"
+          element={
+            user?.role === 'worker' ? <WorkerJobsPage /> : <Navigate to="/workerdashboard" replace />
+          }
+        />
+        <Route
+          path="clients/:clientId"
+          element={
+            user?.role === 'worker' ? <ClientProfilePage /> : <Navigate to="/workerdashboard" replace />
+          }
+        />
+        <Route
+          path="settings"
+          element={
+            user?.role === 'worker' ? (
+              <WorkerSettingsPage />
+            ) : (
+              <Navigate to="/workerdashboard" replace />
+            )
+          }
+        />
+        <Route
+          path="reviews"
+          element={
+            user?.role === 'worker' ? (
+              <WorkerReviewsPage />
+            ) : (
+              <Navigate to="/workerdashboard" replace />
+            )
+          }
+        />
+        <Route
+          path="calendar"
+          element={
+            user?.role === 'worker' ? <WorkerCalendarPage /> : <Navigate to="/workerdashboard" replace />
+          }
+        />
+        <Route
+          path="account"
+          element={
+            user?.role === 'worker' ? <WorkerAccountPage /> : <Navigate to="/workerdashboard" replace />
+          }
+        />
+        <Route
+          path="chat"
+          element={
+            user?.role === 'worker' ? <ChatPage /> : <Navigate to="/workerdashboard" replace />
+          }
+        />
+        <Route
+          path="proposals"
+          element={
+            user?.role === 'worker' ? <WorkerProposalsPage /> : <Navigate to="/workerdashboard" replace />
+          }
+        />
+        <Route
+          path="proposals/pending"
+          element={
+            user?.role === 'worker' ? (
+              <WorkerPendingProposalsPage />
+            ) : (
+              <Navigate to="/workerdashboard" replace />
+            )
+          }
+        />
+      </Route>
+
+      {/* Admin Dashboard Routes */}
+      <Route
+        path="/admindashboard"
+        element={
+          <ProtectedRoute>
+            {user === null ? (
+              loadingScreen
+            ) : !user.onboardingCompleted ? (
+              <Navigate to="/onboarding" replace />
+            ) : user.role === 'admin' ? (
+              <AdminDashboard />
+            ) : (
+              <Navigate to="/login" replace />
+            )}
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/admindashboard/overview" replace />} />
+        <Route path="overview" element={<AdminDashboard />} />
+        <Route path="users" element={<AdminDashboard />} />
+        <Route path="jobs" element={<AdminDashboard />} />
+        <Route path="categories" element={<AdminDashboard />} />
+        <Route path="payments" element={<AdminDashboard />} />
+        <Route path="messages" element={<AdminDashboard />} />
+      </Route>
+
       <Route
         path="/chat"
         element={
           <ProtectedRoute>
-            <Navigate to="/dashboard/chat" replace />
+            {user?.role === 'client' ? (
+              <Navigate to="/clientdashboard/chat" replace />
+            ) : user?.role === 'worker' ? (
+              <Navigate to="/workerdashboard/chat" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )}
           </ProtectedRoute>
         }
       />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route
+        path="/"
+        element={
+          <Navigate
+            to={
+              user?.role === 'client'
+                ? '/clientdashboard'
+                : user?.role === 'worker'
+                ? '/workerdashboard'
+                : user?.role === 'admin'
+                ? '/admindashboard'
+                : '/login'
+            }
+            replace
+          />
+        }
+      />
       </Routes>
     </>
   );
