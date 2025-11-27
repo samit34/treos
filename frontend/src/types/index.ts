@@ -56,6 +56,7 @@ export interface Job {
     };
   };
   hourlyRate: number;
+  budget?: number;
   status: 'open' | 'in-progress' | 'completed' | 'cancelled';
   selectedWorker?: User;
   selectedProposal?: Proposal | string;
