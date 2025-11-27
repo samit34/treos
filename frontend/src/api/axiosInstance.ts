@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://dashboard.tros.com.au/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -34,7 +34,7 @@ axiosInstance.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
-          const response = await axios.post('/api/auth/refresh-token', {
+          const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://dashboard.tros.com.au/api'}/auth/refresh-token`, {
             refreshToken,
           });
 

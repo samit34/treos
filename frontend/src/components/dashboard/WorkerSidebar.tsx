@@ -7,7 +7,7 @@ const WorkerSidebar = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000';
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://dashboard.tros.com.au';
 
   const profilePictureSrc = user?.profilePicture
     ? user.profilePicture.startsWith('http')
@@ -21,19 +21,19 @@ const WorkerSidebar = () => {
   };
 
   const menuItems = [
-    { path: '/dashboard', label: 'Overview', icon: '📊' },
-    { path: '/dashboard/jobs', label: 'Find Jobs', icon: '🗂️' },
-    { path: '/dashboard/proposals', label: 'My Proposals', icon: '📝' },
-    { path: '/dashboard/proposals/pending', label: 'Pending Proposals', icon: '⏳' },
-    { path: '/dashboard/calendar', label: 'Calendar', icon: '📅' },
-    { path: '/dashboard/account', label: 'Profile', icon: '👤' },
-    { path: '/dashboard/settings', label: 'Settings', icon: '⚙️' },
-    { path: '/dashboard/reviews', label: 'Reviews', icon: '⭐' },
-    { path: '/dashboard/chat', label: 'Messages', icon: '💬' },
+    { path: '/workerdashboard', label: 'Overview', icon: '📊' },
+    { path: '/workerdashboard/jobs', label: 'Find Jobs', icon: '🗂️' },
+    { path: '/workerdashboard/proposals', label: 'My Proposals', icon: '📝' },
+    { path: '/workerdashboard/proposals/pending', label: 'Pending Proposals', icon: '⏳' },
+    { path: '/workerdashboard/calendar', label: 'Calendar', icon: '📅' },
+    { path: '/workerdashboard/account', label: 'Profile', icon: '👤' },
+    { path: '/workerdashboard/settings', label: 'Settings', icon: '⚙️' },
+    { path: '/workerdashboard/reviews', label: 'Reviews', icon: '⭐' },
+    { path: '/workerdashboard/chat', label: 'Messages', icon: '💬' },
   ];
 
   const isActive = (path: string) => {
-    if (path === '/dashboard') {
+    if (path === '/workerdashboard') {
       return location.pathname === path;
     }
     return location.pathname.startsWith(path);

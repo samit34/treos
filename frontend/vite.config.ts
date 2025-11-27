@@ -13,12 +13,12 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://dashboard.tros.com.au',
         changeOrigin: true,
         ws: true,
       },
       '/socket.io': {
-        target: 'http://localhost:5000',
+        target: 'http://dashboard.tros.com.au',
         changeOrigin: true,
         ws: true,
       }
