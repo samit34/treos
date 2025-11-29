@@ -39,6 +39,9 @@ export interface IUser extends Document {
   totalReviews?: number;
   // Client specific fields
   supportNeeds?: string[];
+  // Admin fields
+  isBlocked?: boolean;
+  blockReason?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -81,6 +84,8 @@ const UserSchema: Schema = new Schema(
     rating: { type: Number, default: 0 },
     totalReviews: { type: Number, default: 0 },
     supportNeeds: [{ type: String }],
+    isBlocked: { type: Boolean, default: false },
+    blockReason: { type: String },
   },
   {
     timestamps: true,
