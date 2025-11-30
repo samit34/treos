@@ -31,20 +31,20 @@ app.use(cookieParser());
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/jobs', jobRoutes);
-app.use('/api/proposals', proposalRoutes);
-app.use('/api/chat', chatRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/payments', paymentRoutes);
-app.use('/api/reviews', reviewRoutes);
+app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
+app.use('/jobs', jobRoutes);
+app.use('/proposals', proposalRoutes);
+app.use('/chat', chatRoutes);
+app.use('/admin', adminRoutes);
+app.use('/payments', paymentRoutes);
+app.use('/reviews', reviewRoutes);
 
 // Public routes
-app.get('/api/categories/active', getActiveCategories);
+app.get('/categories/active', getActiveCategories);
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
 });
 
